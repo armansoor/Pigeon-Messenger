@@ -1,0 +1,227 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#app-container {
+    width: 100%;
+    max-width: 420px;
+    height: 100vh;
+    background-color: #ffffff;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.view {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #fff;
+}
+
+.view.active {
+    display: flex;
+}
+
+header {
+    background-color: #007bff;
+    color: white;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+header h1, header h2 {
+    font-size: 1.2rem;
+    margin-left: 8px;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #e9ecef;
+}
+
+.stats-card p {
+    margin-top: 8px;
+    color: #495057;
+}
+
+.section-title {
+    margin: 16px 0 8px;
+    color: #343a40;
+}
+
+.flight-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.flight-item button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.fab {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    background: #007bff;
+    color: white;
+    border: none;
+    width: 56px;
+    height: 56px;
+    border-radius: 28px;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(0,123,255,0.4);
+    cursor: pointer;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 8px;
+}
+
+.map-back {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: white;
+    color: black;
+    z-index: 1000;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.chat-input-area {
+    display: flex;
+    padding: 12px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    margin-right: 8px;
+    outline: none;
+}
+
+.chat-input-area button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 0 16px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.msg-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-bottom: 16px;
+}
+
+.msg-bubble {
+    background: #e9ecef;
+    padding: 12px 16px;
+    border-radius: 16px;
+    border-bottom-right-radius: 4px;
+    max-width: 80%;
+    color: #495057;
+}
+
+.msg-bubble.delivered {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.msg-status {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 4px;
+    cursor: pointer;
+}
+
+#map {
+    flex: 1;
+    width: 100%;
+}
+
+.map-panel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+    padding: 20px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    margin-top: 12px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #007bff;
+    width: 0%;
+    transition: width 1s linear;
+}
+
+/* Custom pigeon marker */
+.pigeon-icon {
+    font-size: 24px;
+    line-height: 24px;
+    text-align: center;
+    transition: transform 1s linear; /* Smooth rotation */
+}
