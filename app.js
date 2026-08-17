@@ -17,6 +17,18 @@ let currentTrackingId = null;
 // ==========================================
 // 2. MATH & PHYSICS HELPER FUNCTIONS
 // ==========================================
+function escapeHTML(str) {
+    return str.replace(/[&<>'"]/g,
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
+
 function calculateDistance(loc1, loc2) {
     const R = 6371; // Earth radius in km
     const dLat = (loc2.lat - loc1.lat) * (Math.PI / 180);
@@ -56,12 +68,13 @@ function createPigeon(text) {
     
     const pigeon = {
         id: Math.random().toString(36).substring(2, 8).toUpperCase(),
-        message: text,
+        message: escapeHTML(text),
         startLoc: { ...myLocation },
         endLoc: { ...friendLocation },
         currentLoc: { ...myLocation },
         status: "🪽 Taking off!",
         speedKmh: 64,
+        maxSpeedKmh: 64,
         distanceRemainingKm: totalDist,
         totalDistanceKm: totalDist,
         healthPercent: 100,
@@ -69,7 +82,9 @@ function createPigeon(text) {
         progressPercent: 0,
         eventsEncountered: 0,
         isDelivered: false,
-        bearing: initialBearing
+        bearing: initialBearing,
+        startTime: Date.now(),
+        flightTimeMs: 0
     };
     
     pigeons.push(pigeon);
@@ -122,6 +137,8 @@ setInterval(() => {
             pigeon.currentLoc = interpolate(pigeon.startLoc, pigeon.endLoc, pigeon.progressPercent);
             pigeon.distanceRemainingKm = pigeon.totalDistanceKm * (1 - pigeon.progressPercent);
             handleRandomEvents(pigeon);
+            pigeon.flightTimeMs = Date.now() - pigeon.startTime;
+            if (pigeon.speedKmh > pigeon.maxSpeedKmh) pigeon.maxSpeedKmh = pigeon.speedKmh;
         }
     });
     
@@ -174,7 +191,7 @@ function updateUI() {
     document.getElementById('stat-distance').innerText = globalStats.totalDistance;
     
     const flightList = document.getElementById('active-flights-list');
-    flightList.innerHTML = pigeons.map(p => `
+    flightList.innerHTML = pigeons.filter(p => !p.isDelivered).map(p => `
         <div class="card flight-item">
             <div>
                 <strong>Pigeon #${p.id}</strong><br>
@@ -256,12 +273,40 @@ function updateMapLogic() {
     const iconEl = document.getElementById('live-pigeon-icon');
     if (iconEl) iconEl.style.transform = `rotate(${pigeon.bearing}deg)`;
 
+    // Helpers for time formatting
+    const formatTime = ms => {
+        const totalMinutes = Math.floor(ms / 60000);
+        const hours = Math.floor(totalMinutes / 60);
+        const mins = totalMinutes % 60;
+        return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+    };
+
+    let etaString = "N/A";
+    if (pigeon.speedKmh > 0) {
+        // ETA in hours = distance / speed. We multiply by 3600000 for ms.
+        // Wait, the simulation is accelerated (2% per second).
+        // If it travels 2% per second, full journey takes 50 seconds.
+        // Distance doesn't matter for the *real* ETA, but let's fake it according to the lore:
+        const hoursRemaining = pigeon.distanceRemainingKm / pigeon.speedKmh;
+        etaString = formatTime(hoursRemaining * 3600000);
+    }
+
+    // Convert actual flight time to a fake lore-friendly flight time (assuming 64km/h average)
+    // Actually, just use progress * total distance / average speed.
+    const avgSpeed = (pigeon.maxSpeedKmh + 64) / 2; // rough estimate
+    const simulatedTotalHours = pigeon.totalDistanceKm / avgSpeed;
+    const simulatedElapsedMs = pigeon.progressPercent * simulatedTotalHours * 3600000;
+    const flightTimeString = formatTime(simulatedElapsedMs);
+
     // Update Bottom Panel
     const panel = document.getElementById('map-panel');
     if (pigeon.isDelivered) {
         panel.innerHTML = `
             <h3 style="color:#0f5132">🐦 PIGEON ARRIVED!</h3>
             <p style="margin-top:8px">Flight distance: ${Math.round(pigeon.totalDistanceKm)} km</p>
+            <p>Flight time: ${flightTimeString}</p>
+            <p>Average speed: ${Math.round(pigeon.totalDistanceKm / simulatedTotalHours)} km/h</p>
+            <p>Maximum speed: ${Math.round(pigeon.maxSpeedKmh)} km/h</p>
             <p>Events encountered: ${pigeon.eventsEncountered}</p>
             <p style="margin-top:12px"><strong>Message:</strong><br>"${pigeon.message}"</p>
         `;
@@ -271,14 +316,21 @@ function updateMapLogic() {
                 <strong>🐦 Pigeon #${pigeon.id}</strong>
                 <span style="color:#007bff; font-weight:bold">${pigeon.status}</span>
             </div>
+            <div style="margin-top: 8px; font-size: 0.85em; color: #6c757d; border-bottom: 1px solid #e9ecef; padding-bottom: 8px; margin-bottom: 8px;">
+                <p>📍 Origin: ${pigeon.startLoc.lat.toFixed(4)}, ${pigeon.startLoc.lng.toFixed(4)}</p>
+                <p>📍 Destination: ${pigeon.endLoc.lat.toFixed(4)}, ${pigeon.endLoc.lng.toFixed(4)}</p>
+            </div>
             <div style="display:flex; justify-content:space-between; margin-top:12px; color:#495057;">
                 <div>
                     <p>💨 ${Math.round(pigeon.speedKmh)} km/h</p>
                     <p>📏 ${Math.round(pigeon.distanceRemainingKm)} km remaining</p>
+                    <p>⏱️ ETA: ${etaString}</p>
+                    <p>🕐 Flight time: ${flightTimeString}</p>
                 </div>
                 <div style="text-align:right;">
                     <p>❤️ Health: ${pigeon.healthPercent}%</p>
                     <p>💀 Risk: ${pigeon.flightRiskPercent}%</p>
+                    <p>📊 Progress: ${Math.round(pigeon.progressPercent * 100)}%</p>
                 </div>
             </div>
             <div class="progress-bar">
