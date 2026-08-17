@@ -155,16 +155,29 @@ function switchView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById(viewId).classList.add('active');
     
-    if (viewId === 'view-map' && map != null) {
-        setTimeout(() => map.invalidateSize(), 100);
+    if (viewId === 'view-map') {
+        if (!currentTrackingId && pigeons.length > 0) {
+            // If they just clicked "Map" from nav, show the first active pigeon, or last delivered
+            const active = pigeons.find(p => !p.isDelivered);
+            currentTrackingId = active ? active.id : pigeons[pigeons.length - 1].id;
+            initMap(currentTrackingId);
+        } else if (!currentTrackingId && pigeons.length === 0) {
+            // No pigeons yet, just show empty map at user location
+            if (!map) {
+                map = L.map('map', { zoomControl: false }).setView([myLocation.lat, myLocation.lng], 7);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+            }
+            document.getElementById('map-panel').innerHTML = '<p>No pigeons flying yet. Send one from the Chat tab!</p>';
+        }
+        if (map) {
+            setTimeout(() => map.invalidateSize(), 100);
+        }
     } else {
         currentTrackingId = null; 
     }
     updateUI();
-}
-
-function handleEnter(e) {
-    if (e.key === 'Enter') sendPigeon();
 }
 
 function sendPigeon() {
