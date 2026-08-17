@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pigeon Messenger 🐦</title>
+    
+    <!-- Leaflet Maps CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        
+        <!-- HOME SCREEN -->
+        <div id="view-home" class="view active">
+            <header>
+                <h1>🐦 Pigeon Messenger</h1>
+            </header>
+            <div class="content">
+                <div class="card stats-card">
+                    <h3>📊 Network Stats</h3>
+                    <p>Active Pigeons: <span id="stat-active">0</span></p>
+                    <p>Messages Waiting: <span id="stat-waiting">0</span></p>
+                    <p>Total Flights: <span id="stat-flights">37</span></p>
+                    <p>Total Distance: <span id="stat-distance">4821</span> km</p>
+                </div>
+
+                <h3 class="section-title">🕊️ Active Flights</h3>
+                <div id="active-flights-list">
+                    <!-- Flights injected via JS -->
+                </div>
+            </div>
+            <button class="fab" onclick="switchView('view-chat')">💌</button>
+        </div>
+
+        <!-- CHAT SCREEN -->
+        <div id="view-chat" class="view">
+            <header>
+                <button class="back-btn" onclick="switchView('view-home')">←</button>
+                <h2>Chat with Alice</h2>
+            </header>
+            <div id="chat-messages" class="content">
+                <!-- Messages injected via JS -->
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="message-input" placeholder="Write a message..." onkeypress="handleEnter(event)">
+                <button onclick="sendPigeon()">Send 🐦</button>
+            </div>
+        </div>
+
+        <!-- MAP SCREEN -->
+        <div id="view-map" class="view">
+            <button class="back-btn map-back" onclick="switchView('view-home')">←</button>
+            <div id="map"></div>
+            
+            <div class="map-panel" id="map-panel">
+                <!-- Map UI injected via JS -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Leaflet Maps JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
